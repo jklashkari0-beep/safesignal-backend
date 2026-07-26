@@ -24,4 +24,38 @@ router.get('/', async (req, res) => {
   }
 });
 
+
+// PUT /api/profile - Update Profile
+router.put('/', async (req, res) => {
+  try {
+    const { name, email } = req.body;
+
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (name) user.name = name;
+    if (email) user.email = email;
+
+    await user.save();
+
+    res.json({
+      message: 'Profile updated successfully',
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+    });
+  } catch (err) {
+    res.status(500).json({
+      message: 'Server error',
+      error: err.message,
+    });
+  }
+});
+
 module.exports = router;
