@@ -14,6 +14,7 @@ const authRoutes = require('./routes/auth');
 const contactRoutes = require('./routes/contacts');
 const alertRoutes = require('./routes/alerts');
 const helplineRoutes = require('./routes/helplines');
+const profileRoutes = require('./routes/profile');
 
 const app = express();
 const server = http.createServer(app);
@@ -32,7 +33,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/contacts', contactRoutes);
 app.use('/api/alerts', alertRoutes);
 app.use('/api/helplines', helplineRoutes);
-
+app.use('/api/profile', profileRoutes);
+  
 const PORT = process.env.PORT || 5000;
 
 connectDB().then(() => {
