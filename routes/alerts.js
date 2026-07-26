@@ -14,12 +14,19 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ message: 'Location (lat, lng) is required' });
     }
     const contacts = await Contact.find({ owner: req.user.id });
-    const alert = await Alert.create({
-      user: req.user.id,
-      location: { lat, lng },
-      message: message || 'SOS Emergency Triggered',
-      contactsNotified: contacts.map((c) => c._id),
-    });
+    const googleMapsLink = `https://maps.google.com/?q=${lat},${lng}`;
+
+const alert = await Alert.create({
+  user: req.user.id,
+  location: {
+    lat,
+    lng,
+  },
+  googleMapsLink,
+  message: message || 'SOS Emergency Triggered',
+  smsSent: false,
+  contactsNotified: contacts.map((c) => c._id),
+});
 
     // Broadcast in real time to the admin dashboard
     const io = req.app.get('io');
