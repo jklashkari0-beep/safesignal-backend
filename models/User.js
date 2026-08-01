@@ -7,6 +7,11 @@ const UserSchema = new mongoose.Schema(
     password: { type: String, required: true },
     phone: { type: String, trim: true },
     role: { type: String, enum: ['user', 'admin'], default: 'user' },
+    bloodGroup: { type: String, trim: true },
+    heightCm: { type: Number },
+    weightKg: { type: Number },
+    address: { type: String, trim: true },
+    medicalNotes: { type: String, trim: true }, // e.g. allergies, conditions responders should know
   },
   { timestamps: true }
 );

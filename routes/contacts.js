@@ -14,9 +14,9 @@ router.get('/', async (req, res) => {
 // POST /api/contacts - add a contact
 router.post('/', async (req, res) => {
   try {
-    const { name, phone, relation } = req.body;
+    const { name, phone, email, relation } = req.body;
     if (!name || !phone) return res.status(400).json({ message: 'Name and phone are required' });
-    const contact = await Contact.create({ owner: req.user.id, name, phone, relation });
+    const contact = await Contact.create({ owner: req.user.id, name, phone, email, relation });
     res.status(201).json(contact);
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });

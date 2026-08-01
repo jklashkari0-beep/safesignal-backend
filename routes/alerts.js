@@ -1,7 +1,9 @@
 const express = require('express');
 const Alert = require('../models/Alert');
 const Contact = require('../models/Contact');
+const User = require('../models/User');
 const { protect, adminOnly } = require('../middleware/auth');
+const { sendSOSEmail } = require('../utils/mailer');
 
 const router = express.Router();
 router.use(protect);
@@ -14,25 +16,34 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ message: 'Location (lat, lng) is required' });
     }
     const contacts = await Contact.find({ owner: req.user.id });
-    const googleMapsLink = `https://maps.google.com/?q=${lat},${lng}`;
-
-const alert = await Alert.create({
-  user: req.user.id,
-  location: {
-    lat,
-    lng,
-  },
-  googleMapsLink,
-  message: message || 'SOS Emergency Triggered',
-  smsSent: false,
-  contactsNotified: contacts.map((c) => c._id),
-});
+    const alert = await Alert.create({
+      user: req.user.id,
+      location: { lat, lng },
+      message: message || 'SOS Emergency Triggered',
+      contactsNotified: contacts.map((c) => c._id),
+    });
 
     // Broadcast in real time to the admin dashboard
     const io = req.app.get('io');
     io.emit('new-alert', alert);
 
-    res.status(201).json({ alert, notified: contacts.length });
+    // Fire-and-forget: email every contact that has an email on file
+    const victim = await User.findById(req.user.id);
+    const mapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+    contacts
+      .filter((c) => c.email)
+      .forEach((c) => {
+        sendSOSEmail({
+          to: c.email,
+          victimName: victim?.name || 'A SafeSignal user',
+          victimPhone: victim?.phone,
+          lat,
+          lng,
+          mapsUrl,
+        }).catch((err) => console.error('Email send failed for', c.email, err.message));
+      });
+
+    res.status(201).json({ alert, notified: contacts.length, mapsUrl });
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
