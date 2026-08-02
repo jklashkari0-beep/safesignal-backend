@@ -27,30 +27,29 @@ router.post('/', async (req, res) => {
     const io = req.app.get('io');
     io.emit('new-alert', alert);
 
-    // Fire-and-forget: email every contact that has an email on file
-    const victim = await User.findById(req.user.id);
-    const mapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
-    contacts
-      .filter((c) => c.email)
-      contacts
+   // Fire-and-forget: email every contact that has an email on file
+const victim = await User.findById(req.user.id);
+const mapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+
+contacts
   .filter((c) => c.email)
   .forEach((c) => {
     console.log("Sending SOS email to:", c.email);
 
     sendSOSEmail({
       to: c.email,
-      victimName: victim?.name || 'A SafeSignal user',
+      victimName: victim?.name || "A SafeSignal user",
       victimPhone: victim?.phone,
       lat,
       lng,
       mapsUrl,
     })
-    .then(() => {
-      console.log("Email sent successfully to:", c.email);
-    })
-    .catch((err) => {
-      console.error("Email send failed for", c.email, err.message);
-    });
+      .then(() => {
+        console.log("Email sent successfully to:", c.email);
+      })
+      .catch((err) => {
+        console.error("Email send failed for", c.email, err.message);
+      });
   });
 
     res.status(201).json({ alert, notified: contacts.length, mapsUrl });
