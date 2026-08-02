@@ -40,3 +40,4 @@ async function sendSOSEmail({ to, victimName, victimPhone, lat, lng, mapsUrl }) 
 
   console.log("Email sent successfully:", to);
 }
+module.exports = { sendSOSEmail };
