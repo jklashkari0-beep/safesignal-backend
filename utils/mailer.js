@@ -14,13 +14,19 @@ function getTransporter() {
 }
 
 async function sendSOSEmail({ to, victimName, victimPhone, lat, lng, mapsUrl }) {
+  console.log("Sending email to:", to);
+
   const t = getTransporter();
-  if (!t || !to) return; // silently skip if email not configured or contact has no email
+
+  if (!t || !to) {
+    console.log("Transporter not configured or email missing");
+    return;
+  }
 
   await t.sendMail({
     from: `"SafeSignal Alert" <${process.env.EMAIL_USER}>`,
     to,
-    subject: `🚨 EMERGENCY: ${victimName} needs help`,
+    subject: ` EMERGENCY: ${victimName} needs help`,
     html: `
       <div style="font-family: sans-serif; padding: 16px;">
         <h2 style="color: #E8384F;">Emergency SOS Alert</h2>
@@ -31,6 +37,6 @@ async function sendSOSEmail({ to, victimName, victimPhone, lat, lng, mapsUrl }) 
       </div>
     `,
   });
-}
 
-module.exports = { sendSOSEmail };
+  console.log("Email sent successfully:", to);
+}
