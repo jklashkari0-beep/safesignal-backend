@@ -6,9 +6,20 @@ function getTransporter() {
   if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) return null;
   if (!transporter) {
     transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
-    });
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false,
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+  connectionTimeout: 60000,
+  greetingTimeout: 60000,
+  socketTimeout: 60000,
+  tls: {
+    rejectUnauthorized: false,
+  },
+});
   }
   return transporter;
 }
