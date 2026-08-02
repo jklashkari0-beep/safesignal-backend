@@ -23,21 +23,24 @@ async function sendSOSEmail({ to, victimName, victimPhone, lat, lng, mapsUrl }) 
     return;
   }
 
-  await t.sendMail({
+  try {
+  const info = await t.sendMail({
     from: `"SafeSignal Alert" <${process.env.EMAIL_USER}>`,
     to,
-    subject: ` EMERGENCY: ${victimName} needs help`,
+    subject: `EMERGENCY: ${victimName} needs help`,
     html: `
-      <div style="font-family: sans-serif; padding: 16px;">
-        <h2 style="color: #E8384F;">Emergency SOS Alert</h2>
-        <p><strong>${victimName}</strong> (${victimPhone || 'no phone on file'}) has triggered an emergency alert and listed you as an emergency contact.</p>
-        <p><strong>Live location:</strong> ${lat.toFixed(5)}, ${lng.toFixed(5)}</p>
-        <p><a href="${mapsUrl}" style="display:inline-block;padding:10px 16px;background:#E8384F;color:#fff;text-decoration:none;border-radius:6px;">Open location in Google Maps</a></p>
-        <p style="color: #888; font-size: 12px;">Sent automatically by SafeSignal.</p>
+      <div style="font-family:sans-serif">
+        <h2>Emergency SOS Alert</h2>
+        <p>${victimName} needs help.</p>
+        <a href="${mapsUrl}">Open Google Maps</a>
       </div>
     `,
   });
 
-  console.log("Email sent successfully:", to);
+  console.log("Email sent successfully:", info.response);
+} catch (err) {
+  console.error("EMAIL ERROR:");
+  console.error(err);
+}
 }
 module.exports = { sendSOSEmail };
