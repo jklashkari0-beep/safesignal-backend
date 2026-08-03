@@ -16,10 +16,14 @@ async function sendSOSEmail({
   try {
     console.log("Sending SOS email to:", to);
 
+    // Render Environment Check
+    console.log("EMAIL USER:", process.env.EMAIL_USER);
+    console.log("EMAIL PASS:", process.env.EMAIL_PASS ? "FOUND" : "MISSING");
+
     const transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
-      port: 587,
-      secure: false,
+      port: 465,
+      secure: true,
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
