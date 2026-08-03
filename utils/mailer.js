@@ -10,57 +10,53 @@ async function sendSOSEmail({
 }) {
   if (!to) return;
 
+  console.log("Sending SOS email to:", to);
+  console.log("EMAIL_USER:", process.env.EMAIL_USER || "MISSING");
+  console.log(
+    "BREVO_API_KEY:",
+    process.env.BREVO_API_KEY ? "FOUND" : "MISSING"
+  );
+
   try {
     const response = await axios.post(
       "https://api.brevo.com/v3/smtp/email",
       {
         sender: {
-          name: "SafeSignal SOS",
           email: process.env.EMAIL_USER,
+          name: "SafeSignal SOS",
         },
-        to: [
-          {
-            email: to,
-          },
-        ],
-        subject: ` Emergency SOS Alert - ${victimName}`,
+        to: [{ email: to }],
+        subject: `Emergency SOS Alert - ${victimName}`,
         htmlContent: `
-          <html>
-          <body style="font-family:Arial,sans-serif;padding:20px">
-            <h2 style="color:red;"> Emergency SOS Alert</h2>
+          <h2>Emergency SOS Alert</h2>
+          <p><b>${victimName}</b> has triggered an SOS.</p>
+          <p><b>Phone:</b> ${victimPhone || "Not Available"}</p>
+          <p><a href="${mapsUrl}">Open Live Location</a></p>
+        `,
+        textContent: `
+Emergency SOS Alert
 
-            <p><b>${victimName}</b> has triggered an SOS alert.</p>
+${victimName} has triggered an SOS.
 
-            <p><b>Phone:</b> ${victimPhone || "Not Available"}</p>
+Phone: ${victimPhone || "Not Available"}
 
-            <p><b>Latitude:</b> ${lat}</p>
-
-            <p><b>Longitude:</b> ${lng}</p>
-
-            <p>
-              <a href="${mapsUrl}" target="_blank">
-                 Open Live Location
-              </a>
-            </p>
-
-            <hr>
-
-            <p>This email was sent automatically by <b>SafeSignal</b>.</p>
-          </body>
-          </html>
+${mapsUrl}
         `,
       },
       {
         headers: {
+          accept: "application/json",
+          "content-type": "application/json",
           "api-key": process.env.BREVO_API_KEY,
-          "Content-Type": "application/json",
         },
       }
     );
 
     console.log("Brevo Email Sent:", response.status);
+    console.log(response.data);
   } catch (err) {
     console.error("BREVO ERROR:");
+    console.error(err.response?.status);
     console.error(err.response?.data || err.message);
   }
 }
