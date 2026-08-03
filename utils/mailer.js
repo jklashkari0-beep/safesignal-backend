@@ -8,21 +8,30 @@ async function sendSOSEmail({
   lng,
   mapsUrl,
 }) {
-  if (!to) return;
+  if (!to) {
+    console.log("No email address found");
+    return;
+  }
 
   try {
+    console.log("Sending SOS email to:", to);
+
     const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-  tls: {
-    rejectUnauthorized: false,
-  },
-});
+      host: "smtp.gmail.com",
+      port: 587,
+      secure: false,
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+      tls: {
+        rejectUnauthorized: false,
+      },
+    });
+
+    await transporter.verify();
+    console.log("SMTP connection successful");
+
     await transporter.sendMail({
       from: {
         name: "SafeSignal SOS",
@@ -89,10 +98,8 @@ ${mapsUrl}
     console.log("Email sent successfully to:", to);
 
   } catch (err) {
-
     console.error("EMAIL SEND ERROR:");
-    console.error(err.message);
-
+    console.error(err);
   }
 }
 
